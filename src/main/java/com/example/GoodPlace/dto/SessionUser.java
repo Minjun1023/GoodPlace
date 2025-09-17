@@ -1,9 +1,11 @@
 package com.example.GoodPlace.dto;
 
 import com.example.GoodPlace.entity.User;
+import lombok.Getter;
 
 import java.io.Serializable;
 
+@Getter
 public class SessionUser implements Serializable {
     private String name;
     private String email;

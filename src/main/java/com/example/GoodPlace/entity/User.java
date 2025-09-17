@@ -18,7 +18,7 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)    // 이메일 중복 제거
     private String email;
 
     @Enumerated(EnumType.STRING)

@@ -17,9 +17,9 @@ public class OAuthAttributes {
     private String providerId;
 
     @Builder
-    public OAuthAttributes(String nameAttributeKey, Map<String, Object> attributes, String name, String email, String provider, String providerId) {
-        this.nameAttributeKey = nameAttributeKey;
+    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String provider, String providerId) {
         this.attributes = attributes;
+        this.nameAttributeKey = nameAttributeKey;
         this.name = name;
         this.email = email;
         this.provider = provider;
@@ -27,11 +27,9 @@ public class OAuthAttributes {
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
-        // 카카오 분기 처리
         if ("kakao".equals(registrationId)) {
-            return ofKakao("id", attributes);
+            return ofKakao(userNameAttributeName, attributes);
         }
-        // 네이버 분기 처리
         if ("naver".equals(registrationId)) {
             return ofNaver("id", attributes);
         }
@@ -42,22 +40,44 @@ public class OAuthAttributes {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
 
+        String email = (String) kakaoAccount.get("email");
+        String id = attributes.get(userNameAttributeName).toString();
+        if (email == null) {
+            email = "kakao_" + id + "@kakao.com";
+        }
+
+        String name = (String) kakaoProfile.get("nickname");
+        if (name == null) {
+            name = "사용자";
+        }
+
         return OAuthAttributes.builder()
-                .name((String) kakaoProfile.get("nickname"))
-                .email((String) kakaoAccount.get("eamil"))
+                .name(name)
+                .email(email)
                 .provider("kakao")
-                .providerId(attributes.get(userNameAttributeName).toString())
+                .providerId(id)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
 
     private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+        String email = (String) attributes.get("email");
+        String id = attributes.get(userNameAttributeName).toString();
+        if (email == null) {
+            email = "google_" + id + "@google.com";
+        }
+
+        String name = (String) attributes.get("name");
+        if (name == null) {
+            name = "사용자";
+        }
+
         return OAuthAttributes.builder()
-                .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
+                .name(name)
+                .email(email)
                 .provider("google")
-                .providerId((String) attributes.get(userNameAttributeName).toString())
+                .providerId(id)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
@@ -66,11 +86,22 @@ public class OAuthAttributes {
     private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
+        String email = (String) response.get("email");
+        String id = (String) response.get(userNameAttributeName);
+        if (email == null) {
+            email = "naver_" + id + "@naver.com";
+        }
+
+        String name = (String) response.get("name");
+        if (name == null) {
+            name = "사용자";
+        }
+
         return OAuthAttributes.builder()
-                .name((String) response.get("name"))
-                .email((String) response.get("email"))
+                .name(name)
+                .email(email)
                 .provider("naver")
-                .providerId((String) response.get(userNameAttributeName))
+                .providerId(id)
                 .attributes(response)
                 .nameAttributeKey(userNameAttributeName)
                 .build();

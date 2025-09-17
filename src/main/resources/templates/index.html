@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>맛집 투어</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .login-info { margin-bottom: 20px; }
+        .login-buttons a { display: block; margin: 10px auto; padding: 10px; width: 200px; text-decoration: none; color: white; border-radius: 5px; }
+        .google { background-color: #DB4437; }
+        .naver { background-color: #03C75A; }
+        .kakao { background-color: #FEE500; color: black; }
+        .logout { background-color: #555; }
+    </style>
+</head>
+<body>
+<h1>맛집 투어에 오신 것을 환영합니다!</h1>
+
+<div class="login-info">
+    <div th:if="${userName}">
+        <p><strong><span th:text="${userName}"></span></strong>님, 안녕하세요!</p>
+        <a href="/logout" class="logout">로그아웃</a>
+    </div>
+
+    <div th:unless="${userName}">
+        <p>로그인하고 맛집을 기록해 보세요.</p>
+        <div class="login-buttons">
+            <a href="/oauth2/authorization/google" class="google">Google로 로그인</a>
+            <a href="/oauth2/authorization/naver" class="naver">Naver로 로그인</a>
+            <a href="/oauth2/authorization/kakao" class="kakao">Kakao로 로그인</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

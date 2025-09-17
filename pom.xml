@@ -7,9 +7,9 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.2.5</version> <relativePath/> </parent>
 	<groupId>com.example</groupId>
-	<artifactId>RestaurantTour</artifactId>
+	<artifactId>GoodPlace</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>RestaurantTour</name>
+	<name>GoodPlace</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>

@@ -14,8 +14,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -46,14 +48,24 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey());
     }
-    private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findByEmail(attributes.getName())
-                // 이메일이 있다면 정보를 업데이트
-                .map(entity -> entity.update(attributes.getName()))
-                // 없을경우 새로 생성
-                .orElse(attributes.toEntity());
 
-        return userRepository.save(user);
+    @Transactional
+    public User saveOrUpdate(OAuthAttributes attributes) {
+        // 이메일로 사용자를 찾는다
+        Optional<User> userOptional = userRepository.findByEmail(attributes.getEmail());
+
+        User user;
+        if (userOptional.isPresent()) {
+            // 이미 가입 사용자일 경우, 이름 정보만 업데이트
+            user = userOptional.get();
+            user.update(attributes.getName());
+        } else {
+            // 처음 가입하는 사용자일 경우, User 엔티티 생성
+            user = attributes.toEntity();
         }
+
+        // DB에 저장, 이미 있는 사용자는 업데이트된 정보가, 없는 사용자는 새로 INSERT
+        return userRepository.save(user);
     }
+}
 
