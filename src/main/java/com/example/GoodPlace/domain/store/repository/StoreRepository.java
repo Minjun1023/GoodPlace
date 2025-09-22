@@ -1,7 +1,7 @@
-package com.example.GoodPlace.Repository;
+package com.example.GoodPlace.domain.store.repository;
 
-import com.example.GoodPlace.entity.Store;
-import com.example.GoodPlace.entity.User;
+import com.example.GoodPlace.domain.store.entity.Store;
+import com.example.GoodPlace.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

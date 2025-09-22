@@ -1,4 +1,4 @@
-package com.example.GoodPlace.entity;
+package com.example.GoodPlace.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -13,20 +13,20 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;    // 사용자 고유 ID
 
     @Column(nullable = false)
-    private String name;
+    private String name;    // 사용자 이름
 
     @Column(nullable = false, unique = true)    // 이메일 중복 제거
-    private String email;
+    private String email;   // 사용자 이메일 (로그인 시 사용되는 주 식별자)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private Role role;  // 사용자의 권한 (GUEST, USER)
 
-    private String provider;
-    private String providerId;
+    private String provider;    // 로그인을 진행한 소셜 서비스 이름 (Kakao, Google, Naver)
+    private String providerId;  // 해당 소셜 서비스에서 사용자를 식별하는 고유 ID
 
     @Builder
     public User(String name, String email, Role role, String provider, String providerId) {

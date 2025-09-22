@@ -1,10 +1,9 @@
-package com.example.GoodPlace.dto;
+package com.example.GoodPlace.domain.user.dto;
 
-import com.example.GoodPlace.entity.Role;
-import com.example.GoodPlace.entity.User;
+import com.example.GoodPlace.domain.user.entity.Role;
+import com.example.GoodPlace.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
-
 import java.util.Map;
 
 @Getter
@@ -37,6 +36,7 @@ public class OAuthAttributes {
     }
 
     private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
+
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
 
@@ -51,7 +51,7 @@ public class OAuthAttributes {
             name = "사용자";
         }
 
-        return OAuthAttributes.builder()
+        OAuthAttributes result = OAuthAttributes.builder()
                 .name(name)
                 .email(email)
                 .provider("kakao")
@@ -59,9 +59,12 @@ public class OAuthAttributes {
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
+
+        return result;
     }
 
     private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+
         String email = (String) attributes.get("email");
         String id = attributes.get(userNameAttributeName).toString();
         if (email == null) {
@@ -73,7 +76,7 @@ public class OAuthAttributes {
             name = "사용자";
         }
 
-        return OAuthAttributes.builder()
+        OAuthAttributes result = OAuthAttributes.builder()
                 .name(name)
                 .email(email)
                 .provider("google")
@@ -81,6 +84,8 @@ public class OAuthAttributes {
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
+
+        return result;
     }
 
     private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
@@ -97,7 +102,7 @@ public class OAuthAttributes {
             name = "사용자";
         }
 
-        return OAuthAttributes.builder()
+        OAuthAttributes result = OAuthAttributes.builder()
                 .name(name)
                 .email(email)
                 .provider("naver")
@@ -105,6 +110,8 @@ public class OAuthAttributes {
                 .attributes(response)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
+
+        return result;
     }
 
     public User toEntity() {

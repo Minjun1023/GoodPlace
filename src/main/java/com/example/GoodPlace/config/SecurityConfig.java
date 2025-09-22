@@ -28,7 +28,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
-                        // 로그아웃 성공 시 / 주소로 이동
+                        // 로그아웃 성공 시 / 주소로 이동 (메인 페이지)
                         .logoutSuccessUrl("/")
                 )
                 // OAuth2 로그인 기능에 대해 여러 설정의 진입점

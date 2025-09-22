@@ -1,7 +1,6 @@
 package com.example.GoodPlace.service;
 
-import ch.qos.logback.core.rolling.helper.MonoTypedConverter;
-import com.example.GoodPlace.dto.NaverSearchResponseDto;
+import com.example.GoodPlace.domain.search.dto.NaverSearchResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,8 +9,8 @@ import reactor.core.publisher.Mono;
 @Service
 public class NaverApiService {
 
-    private final WebClient webClient;
-    private final String naverClientId;
+    private final WebClient webClient;    // 검색용 WebClient
+    private final String naverClientId;  // 네이버 개발자 센터 키
     private final String naverClientSecret;
 
     // application.yml에 있는 네이버 API 키 값을 주입받음
@@ -35,5 +34,4 @@ public class NaverApiService {
                 .retrieve()
                 .bodyToMono(NaverSearchResponseDto.class);
     }
-
 }

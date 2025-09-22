@@ -1,5 +1,6 @@
-package com.example.GoodPlace.entity;
+package com.example.GoodPlace.domain.store.entity;
 
+import com.example.GoodPlace.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +13,7 @@ public class Store {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;    // 맛집 고유 ID
 
     @Column(nullable = false)
     private String name; // 가게 이름
@@ -20,15 +21,20 @@ public class Store {
     @Column(nullable = false)
     private String address; // 가게 주소
 
+    private Double latitude;    // 위도
+    private Double longitude;   // 경도
+
     @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩으로 설정
     @JoinColumn(name = "user_id", nullable = false)
     private User user;  // 이 맛집을 등록한 사용자
 
     @Builder
-    public Store(String name, String address, User user) {
+    public Store(String name, String address, User user, Double latitude, Double longitude) {
         this.name = name;
         this.address = address;
         this.user = user;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public void update(String name, String address) {
