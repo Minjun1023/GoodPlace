@@ -1,12 +1,14 @@
 package com.example.GoodPlace.service;
 
-import com.example.GoodPlace.Repository.StoreRepository;
-import com.example.GoodPlace.Repository.UserRepository;
-import com.example.GoodPlace.dto.StoreListResponseDto;
-import com.example.GoodPlace.dto.StoreSaveRequestDto;
-import com.example.GoodPlace.dto.StoreUpdateRequestDto;
-import com.example.GoodPlace.entity.Store;
-import com.example.GoodPlace.entity.User;
+import com.example.GoodPlace.domain.search.dto.KakaoAddressDocumentDto;
+import com.example.GoodPlace.domain.search.dto.KakaoAddressResponseDto;
+import com.example.GoodPlace.domain.store.repository.StoreRepository;
+import com.example.GoodPlace.domain.user.repository.UserRepository;
+import com.example.GoodPlace.domain.store.dto.StoreListResponseDto;
+import com.example.GoodPlace.domain.store.dto.StoreSaveRequestDto;
+import com.example.GoodPlace.domain.store.dto.StoreUpdateRequestDto;
+import com.example.GoodPlace.domain.store.entity.Store;
+import com.example.GoodPlace.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
+    private final KakaoApiService kakaoApiService;
 
     @Transactional
     public Long save(StoreSaveRequestDto requestDto, String userEmail) {
@@ -27,11 +30,26 @@ public class StoreService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다. email=" + userEmail));
 
+        // 카카오 API를 호출하여 좌표 정보 가져오기
+        KakaoAddressResponseDto kakaoResponse = kakaoApiService.geocode(requestDto.getAddress()).block();
+
+        Double latitude = null;
+        Double longitude = null;
+
+        // 응답이 있고, 주소 정보가 있으면 좌표 추출
+        if (kakaoResponse != null && kakaoResponse.getDocuments() != null && !kakaoResponse.getDocuments().isEmpty()) {
+            KakaoAddressDocumentDto addressDto = kakaoResponse.getDocuments().get(0);
+            latitude = Double.parseDouble(addressDto.getY());
+            longitude = Double.parseDouble(addressDto.getX());
+        }
+
         // Store 엔티티 생성
         Store store = Store.builder()
                 .name(requestDto.getName())
                 .address(requestDto.getAddress())
                 .user(user) // 사용자 정보 연결
+                .latitude(latitude)
+                .longitude(longitude)
                 .build();
 
         // 데이터베이스에 저장, 생성된 가게의 ID를 반환
