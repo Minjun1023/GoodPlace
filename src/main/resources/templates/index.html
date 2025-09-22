@@ -3,33 +3,175 @@
 <head>
     <title>맛집 투어</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=92fb640a948d156ed8e67397b271e309&autoload=false"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; }
-        .login-info { margin-bottom: 20px; }
-        .login-buttons a { display: block; margin: 10px auto; padding: 10px; width: 200px; text-decoration: none; color: white; border-radius: 5px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; text-align: center; padding: 40px; background-color: #f8f9fa; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #007bff; }
+        .login-info { margin-bottom: 25px; }
+        a { text-decoration: none; }
+        .login-buttons a { display: block; margin: 10px auto; padding: 12px; width: 220px; text-decoration: none; color: white; border-radius: 5px; font-weight: bold; }
         .google { background-color: #DB4437; }
         .naver { background-color: #03C75A; }
-        .kakao { background-color: #FEE500; color: black; }
-        .logout { background-color: #555; }
+        .kakao { background-color: #FEE500; color: #3C1E1E; }
+        .logout { display: inline-block; background-color: #6c757d; padding: 10px 20px; color: white; border-radius: 5px; }
+        #map { width: 100%; height: 500px; margin-top: 30px; border-radius: 8px; }
+        .list-container { margin-top: 30px; text-align: left; }
+        .list-container input { width: calc(100% - 80px); padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .list-container button { padding: 5px 10px; border: none; color: white; border-radius: 5px; cursor: pointer; }
+        .search-btn { width: 70px; padding: 10px; background-color: #007bff; }
+        .add-btn { background-color: #28a745; }
+        .delete-btn { background-color: #dc3545; }
+        .my-stores, #search-results { list-style: none; padding: 0; margin-top: 20px; text-align: left; }
+        .my-stores li, #search-results li { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .my-stores li div, #search-results li div { flex-grow: 1; }
+        .my-stores li b, #search-results li b { font-weight: 600; }
     </style>
 </head>
 <body>
-<h1>맛집 투어에 오신 것을 환영합니다!</h1>
+<div class="container">
+    <h1>맛집 투어에 오신 것을 환영합니다!</h1>
+    <div class="login-info">
+        <div th:if="${userName}">
+            <p><strong><span th:text="${userName}"></span></strong>님, 안녕하세요!</p>
+            <a href="/logout" class="logout">로그아웃</a>
+            <div id="map"></div>
 
-<div class="login-info">
-    <div th:if="${userName}">
-        <p><strong><span th:text="${userName}"></span></strong>님, 안녕하세요!</p>
-        <a href="/logout" class="logout">로그아웃</a>
-    </div>
+            <div class="list-container">
+                <h2>내 맛집 목록</h2>
+                <ul class="my-stores" id="my-stores-list">
+                </ul>
+            </div>
 
-    <div th:unless="${userName}">
-        <p>로그인하고 맛집을 기록해 보세요.</p>
-        <div class="login-buttons">
-            <a href="/oauth2/authorization/google" class="google">Google로 로그인</a>
-            <a href="/oauth2/authorization/naver" class="naver">Naver로 로그인</a>
-            <a href="/oauth2/authorization/kakao" class="kakao">Kakao로 로그인</a>
+            <div class="list-container">
+                <h2>맛집 검색</h2>
+                <input type="text" id="search-query" placeholder="검색어를 입력하세요 (예: 강남역 맛집)">
+                <button id="search-btn" class="search-btn">검색</button>
+                <ul id="search-results"></ul>
+            </div>
+        </div>
+        <div th:unless="${userName}">
+            <p>로그인하고 나만의 맛집 지도를 만들어 보세요.</p>
+            <div class="login-buttons">
+                <a href="/oauth2/authorization/google" class="google">Google로 로그인</a>
+                <a href="/oauth2/authorization/naver" class="naver">Naver로 로그인</a>
+                <a href="/oauth2/authorization/kakao" class="kakao">Kakao로 로그인</a>
+            </div>
         </div>
     </div>
 </div>
+
+<script th:inline="javascript">
+    if ([[${userName != null}]]) {
+        const myStoresList = document.getElementById('my-stores-list');
+
+        kakao.maps.load(function() {
+            const stores = [[${stores}]] || [];
+            const mapContainer = document.getElementById('map');
+            const mapOption = { center: new kakao.maps.LatLng(37.566826, 126.9786567), level: 7 };
+            const map = new kakao.maps.Map(mapContainer, mapOption);
+
+            stores.forEach(store => {
+                // 지도에 마커 표시
+                if (store.latitude && store.longitude) {
+                    const marker = new kakao.maps.Marker({ position: new kakao.maps.LatLng(store.latitude, store.longitude) });
+                    marker.setMap(map);
+                    const infowindow = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;">${store.name}</div>` });
+                    kakao.maps.event.addListener(marker, 'mouseover', () => infowindow.open(map, marker));
+                    kakao.maps.event.addListener(marker, 'mouseout', () => infowindow.close());
+                }
+
+                // --- '내 맛집 목록' UI를 채우는 로직 ---
+                const li = document.createElement('li');
+                const itemDiv = document.createElement('div');
+                itemDiv.innerHTML = `<b>${store.name}</b><br><small>${store.address}</small>`;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '삭제';
+                deleteButton.className = 'delete-btn';
+                deleteButton.onclick = () => deleteStore(store.id); // 삭제 함수 호출
+
+                li.appendChild(itemDiv);
+                li.appendChild(deleteButton);
+                myStoresList.appendChild(li);
+            });
+        });
+
+        // --- 맛집 삭제 함수 ---
+        function deleteStore(storeId) {
+            if (!confirm('정말로 삭제하시겠습니까?')) return;
+
+            fetch(`/api/v1/stores/${storeId}`, {
+                method: 'DELETE',
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('맛집 삭제에 실패했습니다.');
+                    alert('맛집이 삭제되었습니다.');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message);
+                });
+        }
+
+        // 검색 및 추가 기능 (기존과 동일)
+        const searchBtn = document.getElementById('search-btn');
+        const searchQuery = document.getElementById('search-query');
+        const searchResults = document.getElementById('search-results');
+
+        function addStore(name, address) {
+            fetch('/api/v1/stores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ name, address })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('맛집 추가에 실패했습니다.');
+                    return response.json();
+                })
+                .then(() => {
+                    alert('맛집이 성공적으로 추가되었습니다!');
+                    window.location.reload();
+                })
+                .catch(error => alert(error.message));
+        }
+
+        searchBtn.addEventListener('click', () => {
+            const query = searchQuery.value;
+            if (!query) { alert('검색어를 입력해주세요!'); return; }
+            fetch(`/api/v1/search?query=${query}`, { credentials: 'same-origin' })
+                .then(response => response.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            const li = document.createElement('li');
+                            const title = item.title.replace(/<[^>]*>?/gm, '');
+                            const itemDiv = document.createElement('div');
+                            itemDiv.innerHTML = `<b>${title}</b><br><small>${item.address}</small>`;
+                            const addButton = document.createElement('button');
+                            addButton.textContent = '추가';
+                            addButton.className = 'add-btn';
+                            addButton.onclick = () => addStore(title, item.address);
+                            li.appendChild(itemDiv);
+                            li.appendChild(addButton);
+                            searchResults.appendChild(li);
+                        });
+                    } else {
+                        searchResults.innerHTML = '<li>검색 결과가 없습니다.</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    searchResults.innerHTML = '<li>검색 중 오류가 발생했습니다.</li>';
+                });
+        });
+
+        searchQuery.addEventListener('keyup', e => { if (e.keyCode === 13) searchBtn.click(); });
+    }
+</script>
 </body>
 </html>
