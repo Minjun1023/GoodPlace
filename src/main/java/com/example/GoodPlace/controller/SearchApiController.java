@@ -1,6 +1,6 @@
 package com.example.GoodPlace.controller;
 
-import com.example.GoodPlace.dto.NaverSearchResponseDto;
+import com.example.GoodPlace.domain.search.dto.NaverSearchResponseDto;
 import com.example.GoodPlace.service.NaverApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
