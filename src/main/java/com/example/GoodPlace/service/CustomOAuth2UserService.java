@@ -1,9 +1,9 @@
 package com.example.GoodPlace.service;
 
-import com.example.GoodPlace.Repository.UserRepository;
-import com.example.GoodPlace.dto.OAuthAttributes;
-import com.example.GoodPlace.dto.SessionUser;
-import com.example.GoodPlace.entity.User;
+import com.example.GoodPlace.domain.user.repository.UserRepository;
+import com.example.GoodPlace.domain.user.dto.OAuthAttributes;
+import com.example.GoodPlace.domain.user.dto.SessionUser;
+import com.example.GoodPlace.domain.user.entity.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,7 +31,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        // 현재 로그인 진행 중인 서비스를 구분하는 코드 (구글, 네이버)
+        // 현재 로그인 진행 중인 서비스를 구분하는 코드 (구글, 네이버, 카카오)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         // OAuth2 로그인 진행 시 키가 되는 필드값. Primary Key와 같은 의미.
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
@@ -41,7 +41,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         User user = saveOrUpdate(attributes);
 
-        httpSession.setAttribute("user", new SessionUser(user));
+        SessionUser sessionUser = new SessionUser(user);
+        httpSession.setAttribute("user", sessionUser);
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
