@@ -1,0 +1,305 @@
+/* 기본 스타일 리셋 및 페이지 배경 설정 */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #ffffff; /* 흰색 배경 */
+    color: #333;
+}
+
+/* 전체 앱 레이아웃 */
+.App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* --- 헤더 스타일 --- */
+.app-header {
+    width: 100%;
+    padding: 20px 40px;
+    background-color: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.app-header .logo {
+    font-weight: 900;
+    font-size: 28px;
+    color: #0d6efd;
+    text-decoration: none;
+}
+.app-header .login-btn {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.app-header .login-btn:hover {
+    background-color: #495057;
+}
+.app-header .user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.app-header .user-info p {
+    margin: 0;
+    font-weight: 500;
+}
+.app-header .logout {
+    background: none;
+    border: 1px solid #ccc;
+    color: #555;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease-in-out;
+}
+.app-header .logout:hover {
+    background-color: #f0f2f5;
+}
+
+/* 메인 콘텐츠 컨테이너 */
+.main-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 위쪽 정렬 */
+    padding: 50px;
+    background-color: #f8f9fa;
+}
+
+/* 로그인 페이지 스타일 */
+.login-page {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 40px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.login-page h1 { font-size: 24px; margin-bottom: 30px; text-align: center; }
+.login-buttons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px auto;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+/* 로그인 폼 */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.login-input {
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.login-submit {
+    background-color: #0d6efd;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.login-submit:hover {
+    background-color: #0b5ed7;
+}
+
+/* 회원가입/아이디/비밀번호 찾기 */
+.login-links {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.login-links a {
+    font-size: 14px;
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.login-links a:hover {
+    text-decoration: underline;
+}
+
+/* 구분선 */
+.divider {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #e9ecef;
+}
+.google { background-color: #4285F4; color: white; }
+.naver { background-color: #03C75A; color: white; }
+.kakao { background-color: #FEE500; color: #191919; }
+
+/* --- 메인 페이지 콘텐츠 스타일 --- */
+.content-wrapper {
+    width: 100%;
+    max-width: 800px;
+}
+.search-box {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    margin-bottom: 50px;
+}
+.search-box h2 {
+    text-align: left;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+.search-tabs {
+    display: flex;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 25px;
+}
+.search-tabs button {
+    padding: 15px 25px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #868e96;
+    position: relative;
+}
+.search-tabs button.active {
+    color: #0d6efd;
+}
+.search-tabs button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #0d6efd;
+}
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+}
+.search-input-wrapper input {
+    width: 100%;
+    padding: 15px 20px;
+    padding-right: 50px;
+    font-size: 16px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+.search-input-wrapper .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+    color: #868e96;
+}
+
+.category-section {
+    margin-bottom: 50px;
+    text-align: left;
+}
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.category-header h2 {
+    font-size: 24px;
+    margin: 0;
+}
+.category-header .view-more {
+    font-size: 14px;
+    color: #868e96;
+    text-decoration: none;
+}
+.category-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.category-item {
+    background-color: #fff;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #e9ecef;
+}
+.category-item:hover {
+    background-color: #f1f3f5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* AI 추천 섹션 */
+.ai-section {
+    background: linear-gradient(to right, #6dd5ed, #2193b0);
+    color: white;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+}
+.ai-section h2 {
+    color: white;
+    margin-top: 0;
+}
+.ai-section button {
+    background-color: #fff;
+    color: #0d6efd;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.ai-section button:hover {
+    transform: scale(1.05);
+}
+
+
+

@@ -13,32 +13,50 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;    // 사용자 고유 ID
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String username; // 아이디
+
+    @Column(nullable = false, unique = true)
+    private String nickname; // 닉네임
+
+    @Column(nullable = false, unique = true)
+    private String email;   // 이메일
 
     @Column(nullable = false)
-    private String name;    // 사용자 이름
-
-    @Column(nullable = false, unique = true)    // 이메일 중복 제거
-    private String email;   // 사용자 이메일 (로그인 시 사용되는 주 식별자)
+    private String password; // 비밀번호
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;  // 사용자의 권한 (GUEST, USER)
+    private Role role;  // 권한 (GUEST, USER)
 
-    private String provider;    // 로그인을 진행한 소셜 서비스 이름 (Kakao, Google, Naver)
-    private String providerId;  // 해당 소셜 서비스에서 사용자를 식별하는 고유 ID
+    @Column(nullable = false)
+    private boolean enabled; // 계정 활성화 여부
+
+    private String provider;    // 소셜 서비스 이름
+    private String providerId;  // 소셜 서비스의 고유 ID
 
     @Builder
-    public User(String name, String email, Role role, String provider, String providerId) {
-        this.name = name;
+    public User(String username, String nickname, String email, String password, Role role, boolean enabled, String provider, String providerId) {
+        this.username = username;
+        this.nickname = nickname;
         this.email = email;
+        this.password = password;
         this.role = role;
+        this.enabled = enabled;
         this.provider = provider;
         this.providerId = providerId;
     }
 
-    public User update(String name) {
-        this.name = name;
+    // OAuth2 사용자 정보 업데이트용
+    public User update(String nickname) {
+        this.nickname = nickname;
         return this;
+    }
+
+    // 이메일 인증 후 계정 활성화
+    public void enable() {
+        this.enabled = true;
     }
 }

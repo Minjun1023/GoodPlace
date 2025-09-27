@@ -53,4 +53,13 @@ public class StoreApiController {
         storeService.delete(id, user.getEmail());
         return ResponseEntity.ok(id);
     }
+
+    // 로그인된 사용자 정보 반환
+    @GetMapping("/api/v1/user")
+    public ResponseEntity<SessionUser> getLoginUser(@LoginUser SessionUser user) {
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
 }

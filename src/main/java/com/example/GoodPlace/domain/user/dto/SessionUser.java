@@ -9,11 +9,11 @@ import java.io.Serializable;
 @Getter
 @NoArgsConstructor
 public class SessionUser implements Serializable {
-    private String name;    // 사용자 이름
-    private String email;   // 사용자 이메일
+    private String nickname;    // 사용자 닉네임
+    private String email;       // 사용자 이메일
 
     public SessionUser(User user) {
-        this.name = user.getName();
+        this.nickname = user.getNickname();
         this.email = user.getEmail();
     }
 

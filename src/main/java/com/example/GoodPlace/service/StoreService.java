@@ -30,6 +30,11 @@ public class StoreService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없습니다. email=" + userEmail));
 
+        // 추가한 맛집의 중복 확인
+        if (storeRepository.existsByUserAndNameAndAddress(user, requestDto.getName(), requestDto.getAddress())) {
+            throw new IllegalStateException("이미 등록된 맛집입니다.");
+        }
+
         // 카카오 API를 호출하여 좌표 정보 가져오기
         KakaoAddressResponseDto kakaoResponse = kakaoApiService.geocode(requestDto.getAddress()).block();
 
@@ -47,7 +52,7 @@ public class StoreService {
         Store store = Store.builder()
                 .name(requestDto.getName())
                 .address(requestDto.getAddress())
-                .user(user) // 사용자 정보 연결
+                .user(user)
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();

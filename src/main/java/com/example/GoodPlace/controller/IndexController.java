@@ -22,7 +22,7 @@ public class IndexController {
     @GetMapping("/")
     public String index(Model model, @LoginUser SessionUser user) {
         if (user != null) {
-            model.addAttribute("userName", user.getName());
+            model.addAttribute("userName", user.getNickname());
             List<StoreListResponseDto> stores = storeService.findAllByUser(user.getEmail());
             model.addAttribute("stores", stores);
         } else {

@@ -30,7 +30,7 @@ public class OAuthAttributes {
             return ofKakao(userNameAttributeName, attributes);
         }
         if ("naver".equals(registrationId)) {
-            return ofNaver("id", attributes);
+            return ofNaver(userNameAttributeName, attributes);
         }
         return ofGoogle(userNameAttributeName, attributes);
     }
@@ -92,33 +92,37 @@ public class OAuthAttributes {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
         String email = (String) response.get("email");
-        String id = (String) response.get(userNameAttributeName);
+        String id = (String) response.get("id");
         if (email == null) {
             email = "naver_" + id + "@naver.com";
         }
 
         String name = (String) response.get("name");
         if (name == null) {
+            name = (String) response.get("nickname");
+        }
+        if (name == null) {
             name = "사용자";
         }
 
-        OAuthAttributes result = OAuthAttributes.builder()
+        return OAuthAttributes.builder()
                 .name(name)
                 .email(email)
                 .provider("naver")
                 .providerId(id)
                 .attributes(response)
-                .nameAttributeKey(userNameAttributeName)
+                .nameAttributeKey("id")
                 .build();
-
-        return result;
     }
 
     public User toEntity() {
         return User.builder()
-                .name(name)
+                .username(provider + "_" + providerId) // provider와 providerId를 조합하여 고유한 username 생성
+                .nickname(name) // 소셜 로그인에서 받은 이름을 nickname으로 사용
                 .email(email)
+                .password("") // 소셜 로그인은 비밀번호가 없으므로 빈 값 저장
                 .role(Role.USER)
+                .enabled(true) // 소셜 로그인은 이메일 인증이 필요 없으므로 바로 활성화
                 .provider(provider)
                 .providerId(providerId)
                 .build();

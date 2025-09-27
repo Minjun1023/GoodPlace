@@ -1,12 +1,26 @@
 package com.example.GoodPlace.config;
 
 import com.example.GoodPlace.service.CustomOAuth2UserService;
+import com.example.GoodPlace.service.UserDetailsServiceImpl;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -14,32 +28,58 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(authorize -> authorize
-                        // 아래 URL들은 로그인 없이 누구나 접근 가능
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**").permitAll()
-                        // "/api/v1/**" 주소를 가진 API는 USER 권한을 가진 사람만 가능
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/login", "/signup").permitAll()
+                        .requestMatchers("/api/v1/search/**").permitAll()
+                        .requestMatchers("/api/users/signup", "/api/users/signup/verify", "/api/users/email-verification/**").permitAll()
                         .requestMatchers("/api/v1/**").hasRole("USER")
-                        // 나머지 모든 요청은 인증된 사용자만 접근 가능
                         .anyRequest().authenticated()
                 )
-                .logout(logout -> logout
-                        // 로그아웃 성공 시 / 주소로 이동 (메인 페이지)
-                        .logoutSuccessUrl("/")
+                .formLogin(form -> form
+                        .loginProcessingUrl("/api/users/login") // The URL to submit the username and password to
+                        .successHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            // You can return user info or a success message here
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write(exception.getMessage());
+                        })
+                        .permitAll()
                 )
-                // OAuth2 로그인 기능에 대해 여러 설정의 진입점
+                .logout(logout -> logout
+                        .logoutUrl("/api/users/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.sendRedirect("http://localhost:3000/");
+                        })
+                )
                 .oauth2Login(oauth2 -> oauth2
-                        // OAuth2 로그인 성공 시 메인 페이지( / ) 주소로 이동
-                        .defaultSuccessUrl("/", true)
-                        // OAuth2 로그인 성공 이후 사용자 정보를 가져올 때의 설정들을 담당
                         .userInfoEndpoint(userInfo -> userInfo
-                                // 소셜 로그인 성공 시 후속 조치를 진행할 UserService 인터페이스의 구현체를 등록
                                 .userService(customOAuth2UserService)
                         )
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("http://localhost:3000/");
+                        })
                 );
 
         return http.build();

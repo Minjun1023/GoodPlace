@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")  // api로 시작하는 모든 경로
+        registry.addMapping("/**")  // 모든 경로
                 .allowedOrigins("http://localhost:3000")    // 리엑트 앱 주소
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
                 .allowCredentials(true);    // 쿠키 인증 요청 허용

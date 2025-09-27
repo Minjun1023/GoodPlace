@@ -4,8 +4,10 @@ import com.example.GoodPlace.domain.user.repository.UserRepository;
 import com.example.GoodPlace.domain.user.dto.OAuthAttributes;
 import com.example.GoodPlace.domain.user.dto.SessionUser;
 import com.example.GoodPlace.domain.user.entity.User;
+import com.example.GoodPlace.domain.user.entity.Role;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.jms.JmsProperties;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -41,8 +44,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         User user = saveOrUpdate(attributes);
 
-        SessionUser sessionUser = new SessionUser(user);
-        httpSession.setAttribute("user", sessionUser);
+        httpSession.setAttribute("user", new SessionUser(user));
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
@@ -61,12 +63,27 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             user = userOptional.get();
             user.update(attributes.getName());
         } else {
-            // 처음 가입하는 사용자일 경우, User 엔티티 생성
-            user = attributes.toEntity();
+            // 처음 가입하는 사용자일 경우, 닉네임 중복 체크
+            String nickname = attributes.getName();
+            if(userRepository.findByNickname(nickname).isPresent()){
+                // 닉네임이 이미 존재하면 랜덤 문자열을 추가
+                nickname = nickname + "-" + UUID.randomUUID().toString().substring(0, 4);
+            }
+
+            // User 엔티티 생성
+            user = User.builder()
+                    .username(attributes.getProvider() + "_" + attributes.getProviderId())
+                    .nickname(nickname)
+                    .email(attributes.getEmail())
+                    .password("")
+                    .role(Role.USER)
+                    .enabled(true)
+                    .provider(attributes.getProvider())
+                    .providerId(attributes.getProviderId())
+                    .build();
         }
 
         // DB에 저장, 이미 있는 사용자는 업데이트된 정보가, 없는 사용자는 새로 INSERT
         return userRepository.save(user);
     }
 }
-
